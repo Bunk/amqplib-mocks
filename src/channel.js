@@ -11,19 +11,22 @@ function setIfUndefined( object, prop, value ) {
 
 function findHandlers( connection, exchange, routingKey ) {
 	if ( !exchange ) {
-		return [];
+		return {};
 	}
 
-	return _( exchange.bindings )
-		.filter( binding => binding.regex.test( routingKey ) )
-		.flatMap( binding => {
-			if ( binding.queueName ) {
-				const queue = connection.queues[ binding.queueName ] || {};
-				return [ queue.consumers ];
-			}
-			return findHandlers( connection.exchanges[ binding.exchangeName ] );
-		} )
-		.value();
+	const filtered = _.filter( exchange.bindings, binding => binding.regex.test( routingKey ) );
+	return _.transform( filtered, ( result, binding ) => {
+		if ( binding.queueName ) {
+			const queue = connection.queues[ binding.queueName ];
+			return Object.assign( result, queue.consumers || {} );
+		}
+		if ( binding.exchangeName ) {
+			const boundExchange = connection.exchanges[ binding.exchangeName ];
+			const consumers = findHandlers( connection, boundExchange, routingKey );
+			return Object.assign( result, consumers || {} );
+		}
+		return false;
+	}, {} );
 }
 
 async function routeMessages( consumers, message ) {
@@ -31,6 +34,14 @@ async function routeMessages( consumers, message ) {
 		return handler( message );
 	} ) );
 	return true;
+}
+
+function generateBindingRegex( pattern ) {
+	pattern = ( pattern || "#" )
+		.replace( ".", "\\." )
+		.replace( "#", "(\\w|\\.)+" )
+		.replace( "*", "\\w+" );
+	return new RegExp( `^${ pattern }$` );
 }
 
 class Channel {
@@ -61,7 +72,7 @@ class Channel {
 		if ( !this.connection.exchanges[ source ] ) {
 			throw new Error( `Bind to non-existing exchange: ${ source }` );
 		}
-		const regex = new RegExp( `^${ pattern.replace( ".", "\\." ).replace( "#", "(\\w|\\.)+" ).replace( "*", "\\w+" ) }$` );
+		const regex = generateBindingRegex( pattern );
 		this.connection.exchanges[ source ].bindings.push( { regex, exchangeName: destination } );
 		return {};
 	}
@@ -70,8 +81,7 @@ class Channel {
 		if ( !this.connection.exchanges[ exchange ] ) {
 			throw new Error( `Bind to non-existing exchange: ${ exchange }` );
 		}
-		pattern = pattern.replace( ".", "\\." ).replace( "#", "(\\w|\\.)+" ).replace( "*", "\\w+" );
-		const regex = new RegExp( `^${ pattern }$` );
+		const regex = generateBindingRegex( pattern );
 		this.connection.exchanges[ exchange ].bindings.push( { regex, queueName: queue } );
 		return {};
 	}
@@ -91,7 +101,7 @@ class Channel {
 		if ( !exchange ) {
 			throw new Error( `Publish to non-existing exchange: ${ exchangeName }` );
 		}
-		const consumers = findHandlers( exchange, routingKey );
+		const consumers = findHandlers( this.connection, exchange, routingKey );
 		const message = { fields: { routingKey, exchange: exchangeName }, content, properties };
 		this.trackedMessages.push( message );
 		return routeMessages( consumers, message );
