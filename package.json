@@ -1,6 +1,6 @@
 {
   "name": "amqplib-mocks",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Simple amqplib mocking library",
   "main": "lib/index.js",
   "scripts": {

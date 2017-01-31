@@ -1,3 +1,9 @@
+## 1.x
+
+### 1.0.0
+
+* Support connections & channels
+
 ## 2.x
 
 ### 2.0.1
