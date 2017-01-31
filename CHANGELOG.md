@@ -1,5 +1,9 @@
 ## 1.x
 
+### 1.1.1
+
+* Fixed a bug with binding resolution
+
 ### 1.1.0
 
 * Support publishing untracked messages
