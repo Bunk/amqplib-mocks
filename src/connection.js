@@ -30,6 +30,11 @@ class Connection {
 		await channel.sendToQueue( queueName, content, properties );
 	}
 
+	async publishUntracked( exchange, routingKey, content, properties ) {
+		const channel = new Channel( this );
+		await channel.publish( exchange, routingKey, content, properties );
+	}
+
 	getPublished( { filter = _.stubTrue, bodyTransform = _.identity } ) {
 		return this.channel.trackedMessages
 			.filter( msg => filter( msg ) )
