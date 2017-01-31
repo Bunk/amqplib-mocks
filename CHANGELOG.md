@@ -1,5 +1,9 @@
 ## 1.x
 
+### 1.1.0
+
+* Support publishing untracked messages
+
 ### 1.0.0
 
 * Support connections & channels
