@@ -18,7 +18,8 @@
     "cover:watch": "nodemon --exec \"npm run cover\" --watch ./src --watch ./test",
     "cover:show": "open \"file://$PWD/coverage/index.html\"",
     "pretest": "npm run lint",
-    "prepublish": "npm run cover && npm run build"
+    "prepublish": "npm run cover && npm run build",
+    "prepare": "npm run build"
   },
   "dependencies": {
     "lodash": "^4.17.2",
