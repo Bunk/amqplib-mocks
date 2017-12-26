@@ -20,7 +20,7 @@ const proxyquire = require( "proxyquire" );
 const server = proxyquire( "./app", { amqplib } );
 server.listen();
 ```
--+++++++
+
 ## Example
 ### app.js
 ```javascript
