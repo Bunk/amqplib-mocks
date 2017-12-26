@@ -35,7 +35,7 @@ class Connection {
 		await channel.publish( exchange, routingKey, content, properties );
 	}
 
-	getPublished( { filter = _.stubTrue, bodyTransform = _.identity } ) {
+	getPublished( { filter = _.stubTrue, bodyTransform = _.identity } = {} ) {
 		return this.channel.trackedMessages
 			.filter( msg => filter( msg ) )
 			.map( msg => Object.assign( msg, { body: bodyTransform( msg.content ) } ) );
