@@ -36,6 +36,9 @@ class Connection {
 	}
 
 	close() {
+		this.queues = {};
+		this.exchanges = {};
+		delete this.channel;
 		return Promise.resolve();
 	}
 
