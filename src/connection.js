@@ -35,6 +35,10 @@ class Connection {
 		await channel.publish( exchange, routingKey, content, properties );
 	}
 
+	close() {
+		return Promise.resolve();
+	}
+
 	getPublished( { filter = _.stubTrue, bodyTransform = _.identity } = {} ) {
 		return this.channel.trackedMessages
 			.filter( msg => filter( msg ) )
