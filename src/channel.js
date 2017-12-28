@@ -100,11 +100,13 @@ class Channel {
 	}
 
 	async cancel( consumerTag ) {
-		// TODO: continue.
-		// queue name needed!
-		const queue = this.connection.queues[ queueName ];
-		queue.consumers[ consumerTag ](null);
-		delete queue.consumers[ consumerTag ];
+		for ( const queue of Object.values( this.connection.queues ) ) {
+			if ( Object.keys( queue.consumers ).includes( consumerTag ) ) {
+				queue.consumers[ consumerTag ]( null );
+				delete queue.consumers[ consumerTag ];
+				break;
+			}
+		}
 	}
 
 	async publish( exchangeName, routingKey, content, properties ) {

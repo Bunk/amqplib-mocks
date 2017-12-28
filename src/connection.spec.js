@@ -2,6 +2,7 @@
 /* eslint-env mocha */
 const { assert } = testHelpers;
 const amqplib = require( "./index" );
+const sinon = require( "sinon" );
 
 describe( "channels", () => {
 	let connection, channel;
@@ -30,6 +31,18 @@ describe( "channels", () => {
 			assert.notExists( connection.currentChannel );
 			assert.isEmpty( connection.exchanges );
 			assert.isEmpty( connection.queues );
+		} );
+
+		it( "can cancel a consumer", async () => {
+			connection.currentChannel.assertQueue( "amq.gen-123" );
+			const spy = sinon.spy();
+			const { consumerTag } = await connection.currentChannel.consume( "amq.gen-123", spy );
+
+			assert.exists( connection.queues[ "amq.gen-123" ] );
+			assert.exists( connection.queues[ "amq.gen-123" ].consumers[ consumerTag ] );
+			connection.currentChannel.cancel( consumerTag );
+			assert.calledWith( spy, null );
+			assert.notExists( connection.queues[ "amq.gen-123" ].consumers[ consumerTag ] );
 		} );
 	} );
 
