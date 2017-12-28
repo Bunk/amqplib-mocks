@@ -99,6 +99,14 @@ class Channel {
 		return { consumerTag };
 	}
 
+	async cancel( consumerTag ) {
+		// TODO: continue.
+		// queue name needed!
+		const queue = this.connection.queues[ queueName ];
+		queue.consumers[ consumerTag ](null);
+		delete queue.consumers[ consumerTag ];
+	}
+
 	async publish( exchangeName, routingKey, content, properties ) {
 		const exchange = this.connection.exchanges[ exchangeName ];
 		if ( !exchange ) {
