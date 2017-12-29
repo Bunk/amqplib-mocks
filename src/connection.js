@@ -44,12 +44,10 @@ class Connection {
 		 * should delete connection from amqplib.connections, as in amqplib.reset()
 		 * but that would need to pass the parent amqplib (index.js) to the Connection ctor
 		 * as this Connection has no clue who created it
-		 * 
 		 * Real amqplib may be used like:
 		 * let conn = amqplib.connect(url);
 		 * conn.close();
 		 * conn = amqplib.connect(url)
-		 * 
 		 * The second connect call should not fail, but here it does
 		 * because of index.js:12.
 		*/
