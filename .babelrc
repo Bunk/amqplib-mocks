@@ -1,5 +1,5 @@
 {
-	"presets": [ "node6" ],
+	"presets": [ "env" ],
 	"plugins": [
 		"babel-plugin-transform-async-to-generator",
 		"babel-plugin-transform-object-rest-spread"
