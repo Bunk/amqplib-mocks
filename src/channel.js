@@ -56,11 +56,11 @@ class Channel {
 		this.once = sinon.stub();
 
 		this.trackedMessages = [];
-	}
 
-	async assertQueue( queue, opt ) {
-		setIfUndefined( this.connection.queues, queue, { messages: [], consumers: {}, options: opt } );
-		return { queue, messageCount: 0, consumerCount: 0 };
+		this.assertQueue = sinon.stub().callsFake( ( queue, opt ) => {
+			setIfUndefined( this.connection.queues, queue, { messages: [], consumers: {}, options: opt } );
+			return { queue, messageCount: 0, consumerCount: 0 };
+		} );
 	}
 
 	async assertExchange( exchange, opt ) {

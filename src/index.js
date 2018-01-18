@@ -1,21 +1,34 @@
+const sinon = require( "sinon" );
 const Connection = require( "./connection" );
 
-let connections = {};
+class ConnectionManager {
+	constructor() {
+		this.connections = {};
 
-module.exports = {
-	connections,
-	getConnection( url ) {
-		return connections[ url ];
-	},
-	async connect( url ) {
-		if ( connections[ url ] ) {
-			throw new Error( `A connection is already open to ${ url }` );
-		}
-		const connection = new Connection();
-		connections[ url ] = connection;
-		return connection;
-	},
-	reset: () => {
-		connections = {};
+		this.connect = sinon.stub().callsFake( url => {
+			if ( this.connections[ url ] ) {
+				const err = new Error( `A connection is already open to ${ url }` );
+				return Promise.reject( err );
+			}
+
+			const connection = new Connection();
+			this.connections[ url ] = connection;
+
+			return Promise.resolve( connection );
+		} );
 	}
-};
+
+	getConnection( url ) {
+		return this.connections[ url ];
+	}
+
+	reset() {
+		this.connect.resetHistory();
+		this.connections = {};
+	}
+}
+
+const instance = new ConnectionManager();
+
+module.exports = instance;
+module.exports.ConnectionManager = ConnectionManager;

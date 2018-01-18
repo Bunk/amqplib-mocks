@@ -18,6 +18,10 @@ describe( "channels", () => {
 		it( "should create the channel", () => {
 			assert.isObject( channel );
 		} );
+
+		it( "should register the method call", () => {
+			assert.calledOnce( connection.createChannel );
+		} );
 	} );
 
 	context( "given a confirm channel is created", () => {
@@ -27,6 +31,10 @@ describe( "channels", () => {
 
 		it( "should create the channel", () => {
 			assert.isObject( channel );
+		} );
+
+		it( "should register the method call", () => {
+			assert.calledOnce( connection.createConfirmChannel );
 		} );
 	} );
 
