@@ -57,64 +57,64 @@ class Channel {
 
 		this.trackedMessages = [];
 
-		this.assertQueue = sinon.stub().callsFake( ( queue, opt ) => {
+		this.assertQueue = sinon.stub().callsFake( async ( queue, opt ) => {
 			setIfUndefined( this.connection.queues, queue, { messages: [], consumers: {}, options: opt } );
 			return { queue, messageCount: 0, consumerCount: 0 };
 		} );
-	}
 
-	async assertExchange( exchange, opt ) {
-		setIfUndefined( this.connection.exchanges, exchange, { bindings: [], options: opt } );
-		return { exchange };
-	}
+		this.assertExchange = sinon.stub().callsFake( async ( exchange, opt ) => {
+			setIfUndefined( this.connection.exchanges, exchange, { bindings: [], options: opt } );
+			return { exchange };
+		} );
 
-	async bindExchange( destination, source, pattern, args ) {
-		if ( !this.connection.exchanges[ source ] ) {
-			throw new Error( `Bind to non-existing exchange: ${ source }` );
-		}
-		const regex = generateBindingRegex( pattern );
-		this.connection.exchanges[ source ].bindings.push( { regex, exchangeName: destination } );
-		return {};
-	}
+		this.bindExchange = sinon.stub().callsFake( async ( destination, source, pattern, args ) => {
+			if ( !this.connection.exchanges[ source ] ) {
+				throw new Error( `Bind to non-existing exchange: ${ source }` );
+			}
+			const regex = generateBindingRegex( pattern );
+			this.connection.exchanges[ source ].bindings.push( { regex, exchangeName: destination } );
+			return {};
+		} );
 
-	async bindQueue( queue, exchange, pattern, args ) {
-		if ( !this.connection.exchanges[ exchange ] ) {
-			throw new Error( `Bind to non-existing exchange: ${ exchange }` );
-		}
-		const regex = generateBindingRegex( pattern );
-		this.connection.exchanges[ exchange ].bindings.push( { regex, queueName: queue } );
-		return {};
-	}
+		this.bindQueue = sinon.stub().callsFake( async ( queue, exchange, pattern, args ) => {
+			if ( !this.connection.exchanges[ exchange ] ) {
+				throw new Error( `Bind to non-existing exchange: ${ exchange }` );
+			}
+			const regex = generateBindingRegex( pattern );
+			this.connection.exchanges[ exchange ].bindings.push( { regex, queueName: queue } );
+			return {};
+		} );
 
-	async consume( queueName, handler ) {
-		const queue = this.connection.queues[ queueName ];
-		if ( !queue ) {
-			throw new Error( `Consuming from non-existing queue: ${ queueName }` );
-		}
-		const consumerTag = shortid.generate();
-		queue.consumers[ consumerTag ] = handler;
-		return { consumerTag };
-	}
+		this.consume = sinon.stub().callsFake( async ( queueName, handler ) => {
+			const queue = this.connection.queues[ queueName ];
+			if ( !queue ) {
+				throw new Error( `Consuming from non-existing queue: ${ queueName }` );
+			}
+			const consumerTag = shortid.generate();
+			queue.consumers[ consumerTag ] = handler;
+			return { consumerTag };
+		} );
 
-	async publish( exchangeName, routingKey, content, properties ) {
-		const exchange = this.connection.exchanges[ exchangeName ];
-		if ( !exchange ) {
-			throw new Error( `Publish to non-existing exchange: ${ exchangeName }` );
-		}
-		const consumers = findHandlers( this.connection, exchange, routingKey );
-		const message = { fields: { routingKey, exchange: exchangeName }, content, properties };
-		this.trackedMessages.push( message );
-		return routeMessages( consumers, message );
-	}
+		this.publish = sinon.stub().callsFake( async ( exchangeName, routingKey, content, properties ) => {
+			const exchange = this.connection.exchanges[ exchangeName ];
+			if ( !exchange ) {
+				throw new Error( `Publish to non-existing exchange: ${ exchangeName }` );
+			}
+			const consumers = findHandlers( this.connection, exchange, routingKey );
+			const message = { fields: { routingKey, exchange: exchangeName }, content, properties };
+			this.trackedMessages.push( message );
+			return routeMessages( consumers, message );
+		} );
 
-	async sendToQueue( queueName, content, properties ) {
-		const queue = this.connection.queues[ queueName ];
-		if ( !queue ) {
-			return true;
-		}
-		const message = { fields: { routingKey: queueName }, content, properties };
-		this.trackedMessages.push( message );
-		return routeMessages( queue.consumers, message );
+		this.sendToQueue = sinon.stub().callsFake( async ( queueName, content, properties ) => {
+			const queue = this.connection.queues[ queueName ];
+			if ( !queue ) {
+				return true;
+			}
+			const message = { fields: { routingKey: queueName }, content, properties };
+			this.trackedMessages.push( message );
+			return routeMessages( queue.consumers, message );
+		} );
 	}
 
 	// amqplib sends a null message when it receives a close event from Rabbit
