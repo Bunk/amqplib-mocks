@@ -25,6 +25,22 @@ describe( "connections", () => {
 		it( "should register the API call", () => {
 			assert.calledOnce( amqplib.connect );
 		} );
+
+		context( "and is then closed", () => {
+			let closed;
+			beforeEach( () => {
+				connection.on( "close", () => ( closed = true ) );
+				return connection.close();
+			} );
+
+			it( "should unregister the connection", () => {
+				assert.isEmpty( amqplib.connections );
+			} );
+
+			it( "should emit a 'close' event", () => {
+				assert.isTrue( closed );
+			} );
+		} );
 	} );
 
 	context( "given a connection has already been registered", () => {

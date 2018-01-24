@@ -3,7 +3,7 @@ const sinon = require( "sinon" );
 const Channel = require( "./channel" );
 
 class Connection {
-	constructor() {
+	constructor( onClose ) {
 		this.queues = {};
 		this.exchanges = {};
 		this.on = sinon.stub();
@@ -14,6 +14,11 @@ class Connection {
 
 		this.createConfirmChannel = sinon.stub().callsFake( () => {
 			return ( this.channel = new Channel( this ) );
+		} );
+
+		this.close = sinon.stub().callsFake( () => {
+			onClose();
+			this.on.withArgs( "close" ).yield();
 		} );
 	}
 

@@ -11,9 +11,10 @@ class ConnectionManager {
 				return Promise.reject( err );
 			}
 
-			const connection = new Connection();
+			const connection = new Connection( () => {
+				delete this.connections[ url ];
+			} );
 			this.connections[ url ] = connection;
-
 			return Promise.resolve( connection );
 		} );
 	}
