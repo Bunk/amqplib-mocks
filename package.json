@@ -1,6 +1,6 @@
 {
   "name": "amqplib-mocks",
-  "version": "1.1.1",
+  "version": "1.3.0",
   "description": "Simple amqplib mocking library",
   "main": "lib/index.js",
   "scripts": {
@@ -10,43 +10,50 @@
     "build:run": "babel src -d lib --source-maps inline --copy-files",
     "build:debug": "npm run clean && npm run build:run",
     "test": "npm run coveralls",
-    "test:run": "cross-env NODE_ENV=test mocha --compilers js:@babel/register -r @babel/polyfill  --timeout 5000 -r ./test/helpers/ -R spec",
+    "test:run": "NODE_ENV=test mocha --require babel-core/register --timeout 5000 -r ./test/helpers/ -R spec",
     "test:all": "npm run test:run -- 'src/**/*.spec.js'",
     "test:watch": "npm run test:all -- -w",
     "cover": "nyc -r text-summary -r html -- npm run test:all",
     "coveralls": "nyc npm run test:all && nyc report -r text-lcov | coveralls",
-    "cover:watch": "nodemon --exec \"npm run cover\" --watch ./src --watch ./test",
+    "cover:watch": "nodemon --exec \"npm run cover && npm run build\" --watch ./src --watch ./test",
     "cover:show": "open \"file://$PWD/coverage/index.html\"",
     "pretest": "npm run lint",
-    "prepublish": "npm run cover && npm run build",
-    "prepare": "npm run cover && npm run build"
+    "preversion": "npm run cover",
+    "version": "npm run build",
+    "postversion": "git push && git push --tags",
+    "prepublish": "publish-please guard",
+    "publish-please": "publish-please"
   },
   "dependencies": {
     "lodash": "^4.17.2",
-    "shortid": "^2.2.6"
+    "shortid": "^2.2.6",
+    "sinon": "^4.1.6"
   },
   "devDependencies": {
-    "@babel/cli": "^7.0.0-beta.36",
-    "@babel/core": "^7.0.0-beta.36",
-    "@babel/polyfill": "^7.0.0-beta.36",
-    "@babel/preset-env": "^7.0.0-beta.36",
-    "@babel/register": "^7.0.0-beta.36",
-    "babel-eslint": "^7.1.1",
+    "babel-cli": "^6.18.0",
+    "babel-eslint": "^8.2.1",
     "babel-plugin-istanbul": "^4.1.5",
+    "babel-plugin-transform-async-to-generator": "^6.16.0",
+    "babel-plugin-transform-object-rest-spread": "^6.19.0",
+    "babel-preset-node6": "^11.0.0",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "chai-subset": "^1.3.0",
-    "coveralls": "^3.0.0",
-    "cross-env": "^5.1.3",
+    "coveralls": "^2.11.15",
     "eslint": "^3.6.1",
     "eslint-config-leankit": "^3.0.0",
     "eslint-plugin-babel": "^4.0.0",
     "eslint-plugin-import": "^2.0.0",
-    "mocha": "^3.2.0",
-    "mocha-lcov-reporter": "^1.3.0",
+    "mocha": "^5.0.0",
+    "nodemon": "1.14.11",
     "nyc": "^11.4.1",
-    "sinon": "^4.1.3",
+    "publish-please": "^2.3.1",
+    "sinon-as-promised": "^4.0.0",
     "sinon-chai": "^2.8.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bunk/amqplib-mocks.git"
   },
   "author": "LeanKit",
   "bugs": {
@@ -61,7 +68,7 @@
       "src/**/*.spec.js"
     ],
     "require": [
-      "@babel/register"
+      "babel-register"
     ],
     "all": true,
     "sourceMap": false,

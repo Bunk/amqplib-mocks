@@ -7,7 +7,7 @@ const assert = chai.assert;
 chai.use( chaiAsPromised );
 chai.use( chaiSubset );
 
-sinon.assert.expose( assert, { prefix: "" } );
+sinon.assert.expose( chai.assert, { prefix: "" } );
 
 module.exports = {
 	chai, assert

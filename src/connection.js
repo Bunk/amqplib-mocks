@@ -3,11 +3,26 @@ const sinon = require( "sinon" );
 const Channel = require( "./channel" );
 
 class Connection {
-	constructor() {
+	constructor( onClose ) {
 		this.queues = {};
 		this.exchanges = {};
 		this.on = sinon.stub();
+
+		this.createChannel = sinon.stub().callsFake( () => {
+			return ( this.channel = new Channel( this ) );
+		} );
+
+		this.createConfirmChannel = sinon.stub().callsFake( () => {
+			return ( this.channel = new Channel( this ) );
+		} );
+
+		this.close = sinon.stub().callsFake( () => {
+			onClose();
+			this.on.withArgs( "close" ).yield();
+		} );
 	}
+
+	// Test Helpers
 
 	get currentChannel() {
 		return this.channel;
@@ -15,14 +30,6 @@ class Connection {
 
 	get trackedMessages() {
 		return this.channel.trackedMessages;
-	}
-
-	createChannel() {
-		return ( this.channel = new Channel( this ) );
-	}
-
-	createConfirmChannel() {
-		return ( this.channel = new Channel( this ) );
 	}
 
 	async sendUntracked( queueName, content, properties ) {
