@@ -58,6 +58,9 @@ class Channel {
 		this.trackedMessages = [];
 
 		this.assertQueue = sinon.stub().callsFake( async ( queue, opt ) => {
+			if ( !queue ) { // http://www.squaremobius.net/amqp.node/channel_api.html#channel_assertQueue
+				queue = shortid.generate();
+			}
 			setIfUndefined( this.connection.queues, queue, { messages: [], consumers: {}, options: opt } );
 			return { queue, messageCount: 0, consumerCount: 0 };
 		} );

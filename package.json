@@ -1,6 +1,6 @@
 {
-  "name": "amqplib-mocks",
-  "version": "1.3.0",
+  "name": "c3s-amqplib-mocks",
+  "version": "1.3.2",
   "description": "Simple amqplib mocking library",
   "main": "lib/index.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "build:run": "babel src -d lib --source-maps inline --copy-files",
     "build:debug": "npm run clean && npm run build:run",
     "test": "npm run coveralls",
-    "test:run": "NODE_ENV=test mocha --require babel-core/register --timeout 5000 -r ./test/helpers/ -R spec",
+    "test:run": "cross-env NODE_ENV=test mocha --require babel-core/register --timeout 5000 -r ./test/helpers/ -R spec",
     "test:all": "npm run test:run -- 'src/**/*.spec.js'",
     "test:watch": "npm run test:all -- -w",
     "cover": "nyc -r text-summary -r html -- npm run test:all",
@@ -21,10 +21,11 @@
     "preversion": "npm run cover",
     "version": "npm run build",
     "postversion": "git push && git push --tags",
-    "prepublish": "publish-please guard",
-    "publish-please": "publish-please"
+    "publish-please": "publish-please",
+    "prepare": "npm run cover && npm run build"
   },
   "dependencies": {
+    "cross-env": "^5.1.3",
     "lodash": "^4.17.2",
     "shortid": "^2.2.6",
     "sinon": "^4.1.6"
