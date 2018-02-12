@@ -21,7 +21,8 @@
     "preversion": "npm run cover",
     "version": "npm run build",
     "postversion": "git push && git push --tags",
-    "publish-please": "publish-please"
+    "publish-please": "publish-please",
+    "prepare": "npm run cover && npm run build"
   },
   "dependencies": {
     "lodash": "^4.17.2",
