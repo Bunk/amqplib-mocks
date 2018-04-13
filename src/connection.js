@@ -9,11 +9,13 @@ class Connection {
 		this.on = sinon.stub();
 
 		this.createChannel = sinon.stub().callsFake( () => {
-			return ( this.channel = new Channel( this ) );
+			this.channel = new Channel( this );
+			return Promise.resolve( this.channel );
 		} );
 
 		this.createConfirmChannel = sinon.stub().callsFake( () => {
-			return ( this.channel = new Channel( this ) );
+			this.channel = new Channel( this );
+			return Promise.resolve( this.channel );
 		} );
 
 		this.close = sinon.stub().callsFake( () => {
