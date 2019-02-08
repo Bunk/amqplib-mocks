@@ -9,6 +9,16 @@ function setIfUndefined( object, prop, value ) {
 	}
 }
 
+function makeId( length = 22 ) {
+    let text = "";
+    const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  
+    for (let i = 0; i < length; i++)
+      text += possible.charAt(Math.floor(Math.random() * possible.length));
+  
+    return text;
+  }
+
 function findHandlers( connection, exchange, routingKey ) {
 	if ( !exchange ) {
 		return {};
@@ -58,6 +68,7 @@ class Channel {
 		this.trackedMessages = [];
 
 		this.assertQueue = sinon.stub().callsFake( async ( queue, opt ) => {
+			if( !queue ) queue = `amq.gen-${ makeId() }`;
 			setIfUndefined( this.connection.queues, queue, { messages: [], consumers: {}, options: opt } );
 			return { queue, messageCount: 0, consumerCount: 0 };
 		} );
