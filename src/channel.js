@@ -95,25 +95,42 @@ class Channel {
 			return { consumerTag };
 		} );
 
-		this.publish = sinon.stub().callsFake( async ( exchangeName, routingKey, content, properties ) => {
+		this.publish = sinon.stub().callsFake( async ( exchangeName, routingKey, content, properties, callback ) => {
 			const exchange = this.connection.exchanges[ exchangeName ];
 			if ( !exchange ) {
-				throw new Error( `Publish to non-existing exchange: ${ exchangeName }` );
+				const error = `Publish to non-existing exchange: ${ exchangeName }`;
+				if ( callback ) {
+					callback( error );
+					return true;
+				} else {
+					throw new Error( error );
+				}
 			}
 			const consumers = findHandlers( this.connection, exchange, routingKey );
 			const message = { fields: { routingKey, exchange: exchangeName }, content, properties };
 			this.trackedMessages.push( message );
-			return routeMessages( consumers, message );
+			const returnValue = routeMessages( consumers, message );
+			if ( callback ) {
+				callback( null );
+			}
+			return returnValue;
 		} );
 
 		this.sendToQueue = sinon.stub().callsFake( async ( queueName, content, properties ) => {
 			const queue = this.connection.queues[ queueName ];
 			if ( !queue ) {
+				if ( callback ) {
+					callback( error )
+				}
 				return true;
 			}
 			const message = { fields: { routingKey: queueName }, content, properties };
 			this.trackedMessages.push( message );
-			return routeMessages( queue.consumers, message );
+			const returnValue = routeMessages( queue.consumers, message );
+			if ( callback ) {
+				callback( null )
+			}
+			return returnValue;
 		} );
 	}
 
